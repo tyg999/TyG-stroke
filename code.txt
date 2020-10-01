@@ -1,0 +1,48 @@
+Stroke patients
+select DISTINCT eicu.diagnosis.patientunitstayid from eicu.diagnosis where diagnosisstring like '%neurologic%stroke%' and diagnosispriority like 'Primary' 
+
+Diagnosis
+select D.patientunitstayid, D.diagnosisstring
+FROM eicu.diagnosis AS D
+inner JOIN (select DISTINCT eicu.diagnosis.patientunitstayid from eicu.diagnosis where diagnosisstring like '%neurologic%stroke%' and diagnosispriority like 'Primary') AS P
+On D.patientunitstayid=P.patientunitstayid 
+
+Demographic features and Discharge status
+select D.patientunitstayid, D.gender, D.age, D.ethnicity, D.unittype, D.hospitaldischargestatus, D.unitdischargestatus, D. admissionweight, D.admissionheight
+FROM eicu.patient AS D
+right JOIN (select DISTINCT eicu.diagnosis.patientunitstayid from eicu.diagnosis where diagnosisstring like '%neurologic%stroke%' and diagnosispriority like 'Primary') AS P
+On D.patientunitstayid=P.patientunitstayid
+order by D.patientunitstayid
+
+APACHE IV score and LOS
+select DISTINCT D.patientunitstayid, D.apachescore, D.actualiculos, D.actualhospitallos
+FROM eicu.apachepatientresult AS D
+right JOIN (select DISTINCT eicu.diagnosis.patientunitstayid from eicu.diagnosis where diagnosisstring like '%neurologic%stroke%' and diagnosispriority like 'Primary') AS P
+On D.patientunitstayid=P.patientunitstayid
+order by D.patientunitstayid
+
+Mechanical ventilation
+select D.patientunitstayid
+FROM eicu.respiratorycharting AS D
+right JOIN (select DISTINCT eicu.diagnosis.patientunitstayid from eicu.diagnosis where diagnosisstring like '%neurologic%stroke%' and diagnosispriority like 'Primary') AS P
+On D.patientunitstayid=P.patientunitstayid
+group by D.patientunitstayid
+order by D.patientunitstayid
+
+GCS
+SELECT N.patientunitstayid, N.nursingChartCellTypeValLabel, min(N. nursingchartvalue)
+FROM eicu.nursecharting AS N
+right JOIN (select DISTINCT eicu.diagnosis.patientunitstayid from eicu.diagnosis where diagnosisstring like '%neurologic%stroke%' and diagnosispriority like 'Primary') AS P
+On N.patientunitstayid=P.patientunitstayid
+WHERE N.nursingChartCellTypeValLabel like '%lasgow coma score%'
+group by N.patientunitstayid, N.nursingChartCellTypeValLabel
+Order by N.patientunitstayid
+
+Laboratory characteristics
+SELECT N.patientunitstayid, N.labresultoffset, N.labresult
+FROM eicu.lab AS N
+right JOIN (select DISTINCT eicu.diagnosis.patientunitstayid from eicu.diagnosis where diagnosisstring like '%neurologic%stroke%' and diagnosispriority like 'Primary') AS P
+On N.patientunitstayid=P.patientunitstayid
+WHERE N.labname like 'XXX'
+group by N.patientunitstayid, N.labresultoffset, N.labresult
+Order by N.patientunitstayid
